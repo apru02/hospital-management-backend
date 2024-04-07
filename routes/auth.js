@@ -504,58 +504,30 @@ router.post("/getuser", fetchuser, async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    res.send(user);
+    let success = true;
+    res.json({ success, data: user });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send({ success: false, message: "Internal Server Error" });
   }
 });
 
-// //Route 5 for updating user details
-// router.put("/updateuser/:id", fetchuser, async (req, res) => {
-//   try {
-//     if (req.user.id !== req.params.id) {
-//       return res.status(401).send("Not Allowed");
-//     }
-
-//     const { name, email } = req.body;
-//     const userId = req.params.id;
-//     const user = await User.findById(userId);
-//     user.name = name;
-//     user.email = email;
-//     await user.save();
-//     let success = true;
-//     res.json({ success, message: "Profile updated successfully", user });
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
-
-// //Route 6 for prompting Names of user for search using username
-// // Assuming you have imported the necessary dependencies and defined the User model
-
-// router.get("/searchuser/:username", fetchuser, async (req, res) => {
-//   const { username } = req.params;
-
-//   try {
-//     // Search for users with matching username
-//     const users = await User.findOne({ username });
-//     if (!users || users._id.toString() === req.user.id.toString()) {
-//       return res
-//         .status(404)
-//         .json({ success: false, error: "No users found" });
-//     }
-//     // Return the found users in the response
-//     res.json({ success: true, users });
-//   } catch (error) {
-//     // Handle any errors that occur during the search
-//     console.error(error);
-//     res
-//       .status(500)
-//       .json({ success:false,error: "An error occurred while searching for users." });
-//   }
-// });
-//Route for fetching user profile filename based on id
+// Route to get user details from email
+router.post("/get-user-from-email", async (req, res) => {
+  let success = false;
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).select("-password");
+    console.log(email);
+    if (!user) {
+      return res.status(404).send({ success, message: "User not found" });
+    }
+    success = true;
+    res.send({ success, data: user });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ success, message: "Internal Server Error" });
+  }
+});
 
 module.exports = router;

@@ -10,12 +10,12 @@ const Hospital = require("../models/hospital_log");
 
 // Create hospital log route for check in
 router.post("/check-in/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const { purpose } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
     const visitor_id = req.params.id;
-    let success = false;
     // if user admin is true then only he can create log
     if (
       user.is_admin === true ||
@@ -25,6 +25,12 @@ router.post("/check-in/:id", fetchuser, async (req, res) => {
       user.is_pharmacist === true ||
       user.is_laboratorist === true
     ) {
+      if (user.is_admin === false && userId != visitor_id) {
+        return res.status(401).json({
+          success,
+          message: "Not Allowed",
+        });
+      }
       const hospital = new Hospital({
         visitor_id,
         purpose,
@@ -43,10 +49,10 @@ router.post("/check-in/:id", fetchuser, async (req, res) => {
 });
 
 router.get("/fetch-all-log", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (user.is_admin === true) {
       // for every log find the user details and send it along with each log
       const hospitals = await Hospital.find();
@@ -71,6 +77,7 @@ router.get("/fetch-all-log", fetchuser, async (req, res) => {
         };
         newHospitals.push(newHospital);
       }
+      newHospitals.sort((a, b) => b.check_in - a.check_in);
       success = true;
       res.status(200).json({ success, data: newHospitals });
     } else {
@@ -84,10 +91,10 @@ router.get("/fetch-all-log", fetchuser, async (req, res) => {
 
 //fetch all logs of a user
 router.get("/fetch-all-log/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     const visitor_id = req.params.id;
     if (user.is_admin === true || userId === visitor_id) {
       const hospitals = await Hospital.find({ visitor_id });
@@ -112,6 +119,8 @@ router.get("/fetch-all-log/:id", fetchuser, async (req, res) => {
         };
         newHospitals.push(newHospital);
       }
+      //sort the logs by check in time
+      newHospitals.sort((a, b) => b.check_in - a.check_in);
       success = true;
       res.status(200).json({ success, data: newHospitals });
     } else {
@@ -125,11 +134,11 @@ router.get("/fetch-all-log/:id", fetchuser, async (req, res) => {
 
 //update hospital log for check out
 router.put("/check-out/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
     const check_out = new Date();
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_doctor === true ||
@@ -139,8 +148,11 @@ router.put("/check-out/:id", fetchuser, async (req, res) => {
       user.is_laboratorist === true
     ) {
       const hospital = await Hospital.findById(req.params.id);
-      if (user.is_admin === false && hospital.visitor_id !== userId) {
-        return res.status(401).json({ success, message: "Not Allowed" });
+      if (!user.is_admin && hospital.visitor_id != userId) {
+        return res.status(401).json({
+          success,
+          message: "Not Allowed",
+        });
       }
       hospital.check_out = check_out;
       await hospital.save();
@@ -157,14 +169,22 @@ router.put("/check-out/:id", fetchuser, async (req, res) => {
 
 //check available doctors
 router.get("/check-doctors", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     //find logs of today
     const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const start = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const end = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1
+    );
     const hospitals = await Hospital.find({
       check_in: { $gte: start, $lt: end },
     });
@@ -179,7 +199,9 @@ router.get("/check-doctors", fetchuser, async (req, res) => {
           email: user.email,
           education: user.education ? user.education : "Not Available",
           experience: user.experience ? user.experience : "Not Available",
-          specialization: user.specialization ? user.specialization : "Not Available",
+          specialization: user.specialization
+            ? user.specialization
+            : "Not Available",
           phone: user.phone,
         };
         doctors.push(new_doctor);
@@ -187,7 +209,6 @@ router.get("/check-doctors", fetchuser, async (req, res) => {
     }
     success = true;
     res.status(200).json({ success, data: doctors });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ success, message: "Internal Server Error" });

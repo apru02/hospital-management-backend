@@ -11,12 +11,12 @@ const Vaccine = require("../models/vaccines");
 
 // Create patient log by doctor route
 router.post("/create-patient-log/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const { diagnosis, prescription, follow_up_date, remarks } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
     const patient_id = req.params.id;
-    let success = false;
     // if user admin is true then only he can create log
     if (user.is_admin === true || user.is_doctor === true) {
       const patient = new Patient({
@@ -40,10 +40,10 @@ router.post("/create-patient-log/:id", fetchuser, async (req, res) => {
 });
 
 router.get("/fetch-log-doctor", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (user.is_admin === true || user.is_doctor === true) {
       const patient_log = await Patient.find({ doctor_id: userId });
       const doctor = await User.findById(userId).select("-password");
@@ -68,6 +68,7 @@ router.get("/fetch-log-doctor", fetchuser, async (req, res) => {
         };
         data.push(new_log);
       }
+      data.sort((a, b) => b.date_of_visit - a.date_of_visit);
       success = true;
       res.status(200).json({ success, data });
     } else {
@@ -81,10 +82,10 @@ router.get("/fetch-log-doctor", fetchuser, async (req, res) => {
 
 //fetch medical history of patient
 router.get("/fetch-patient-log/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_doctor === true ||
@@ -118,6 +119,7 @@ router.get("/fetch-patient-log/:id", fetchuser, async (req, res) => {
         };
         data.push(new_log);
       }
+      data.sort((a, b) => b.date_of_visit - a.date_of_visit);
       success = true;
       res.status(200).json({ success, data });
     } else {
@@ -131,6 +133,7 @@ router.get("/fetch-patient-log/:id", fetchuser, async (req, res) => {
 
 //Create Vaccine Log
 router.post("/create-vaccine-log", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const {
       vaccine_id,
@@ -143,7 +146,6 @@ router.post("/create-vaccine-log", fetchuser, async (req, res) => {
     } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_nurse === true ||
@@ -184,10 +186,10 @@ router.post("/create-vaccine-log", fetchuser, async (req, res) => {
 
 //Fetch all Vaccine Log
 router.get("/fetch-vaccine-log", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_doctor === true ||
@@ -224,6 +226,7 @@ router.get("/fetch-vaccine-log", fetchuser, async (req, res) => {
         };
         data.push(new_log);
       }
+      data.sort((a, b) => b.date_of_vaccination - a.date_of_vaccination);
       success = true;
       res.status(200).json({ success, data });
     } else {
@@ -237,10 +240,10 @@ router.get("/fetch-vaccine-log", fetchuser, async (req, res) => {
 
 //Fetch all Vaccine Log by Patient
 router.get("/fetch-vaccine-log-patient/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_patient === true ||
@@ -281,6 +284,8 @@ router.get("/fetch-vaccine-log-patient/:id", fetchuser, async (req, res) => {
         };
         data.push(new_log);
       }
+      //sort by date of vaccination
+      data.sort((a, b) => b.date_of_vaccination - a.date_of_vaccination);
       success = true;
       res.status(200).json({ success, data });
     } else {

@@ -10,12 +10,12 @@ const Vaccine = require("../models/vaccines");
 // Create New Medicine Stock
 
 router.post("/create-medicine-stock", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const { name, quantity, price, expiry_date, description, manufacturer } =
       req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     // if user admin is true then only he can create log
     if (
       user.is_admin === true ||
@@ -46,10 +46,10 @@ router.post("/create-medicine-stock", fetchuser, async (req, res) => {
 
 // Fetch All Medicine Stock
 router.get("/fetch-medicine-stock", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
@@ -69,10 +69,10 @@ router.get("/fetch-medicine-stock", fetchuser, async (req, res) => {
 
 // Fetch Single Medicine Stock
 router.get("/fetch-medicine-stock/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
@@ -92,10 +92,10 @@ router.get("/fetch-medicine-stock/:id", fetchuser, async (req, res) => {
 
 //Update medicine stock
 router.put("/update-medicine-stock/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
@@ -121,12 +121,12 @@ router.put("/update-medicine-stock/:id", fetchuser, async (req, res) => {
 
 // Create New Vaccine Stock
 router.post("/create-vaccine-stock", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const { name, quantity, price, expiry_date, description, manufacturer } =
       req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     // if user admin is true then only he can create log
     if (
       user.is_admin === true ||
@@ -157,10 +157,10 @@ router.post("/create-vaccine-stock", fetchuser, async (req, res) => {
 
 // Fetch All Vaccine Stock
 router.get("/fetch-vaccine-stock", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
@@ -180,10 +180,10 @@ router.get("/fetch-vaccine-stock", fetchuser, async (req, res) => {
 
 // Fetch Single Vaccine Stock
 router.get("/fetch-vaccine-stock/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
@@ -203,10 +203,10 @@ router.get("/fetch-vaccine-stock/:id", fetchuser, async (req, res) => {
 
 //Update vaccine stock
 router.put("/update-vaccine-stock/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||

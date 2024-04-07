@@ -11,6 +11,7 @@ const VaccineLog = require("../models/vaccine_log");
 
 //Create New Bill
 router.post("/create-bill", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const {
       patient_id,
@@ -24,7 +25,6 @@ router.post("/create-bill", fetchuser, async (req, res) => {
     } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     // if user admin is true then only he can create log
     if (
       user.is_admin === true ||
@@ -75,10 +75,10 @@ router.post("/create-bill", fetchuser, async (req, res) => {
 
 //Fetch All Bills
 router.get("/fetch-bills", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
     if (user.is_admin === true || user.is_accountant === true) {
       const bills = await Bill.find();
       const data = [];
@@ -138,11 +138,15 @@ router.get("/fetch-bills", fetchuser, async (req, res) => {
 
 //fetch all bills of a patient
 router.get("/fetch-bills-patient/:id", fetchuser, async (req, res) => {
+  let success = false;
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    let success = false;
-    if (user.is_admin === true || user.is_accountant === true || user.is_patient === true) {
+    if (
+      user.is_admin === true ||
+      user.is_accountant === true ||
+      user.is_patient === true
+    ) {
       const patient_id = req.params.id;
       const bills = await Bill.find({ patient_id });
       const data = [];
