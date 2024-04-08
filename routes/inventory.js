@@ -50,12 +50,7 @@ router.get("/fetch-medicine-stock", fetchuser, async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    if (
-      user.is_admin === true ||
-      user.is_laboratorist === true ||
-      user.is_pharmacist === true ||
-      user.is_accountant === true
-    ) {
+    if (!user.is_patient) {
       const medicine_stock = await Medicine.find();
       res.status(200).json({ success: true, data: medicine_stock });
     } else {
@@ -210,8 +205,7 @@ router.put("/update-vaccine-stock/:id", fetchuser, async (req, res) => {
     if (
       user.is_admin === true ||
       user.is_laboratorist === true ||
-      user.is_pharmacist === true ||
-      user.is_accountant === true
+      user.is_pharmacist === true
     ) {
       const { quantity, price } = req.body;
       const vaccine_stock = await Vaccine.findById(req.params.id);
